@@ -6,10 +6,10 @@
 
 **Deploy your own LLM in minutes.**
 
-Hands-on workshop by [**MLSA KIIT**](https://mlsakiit.com) — serve **Llama-3.2-3B-Instruct** with a stunning chat UI.
+Hands-on workshop by [**MLSA KIIT**](https://mlsakiit.com) — deploy and chat with an LLM using a stunning web UI.
 
-[![Modal](https://img.shields.io/badge/Modal-Serverless_GPU-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHJ4PSI0IiBmaWxsPSIjNjM2NmYxIi8+PC9zdmc+)](https://modal.com)&nbsp;
-[![Ollama](https://img.shields.io/badge/Ollama-Run_Locally-000000?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHJ4PSI0IiBmaWxsPSIjMDAwIi8+PC9zdmc+)](https://ollama.com)&nbsp;
+[![Modal](https://img.shields.io/badge/Modal-Serverless_GPU-6366f1?style=for-the-badge)](https://modal.com)&nbsp;
+[![Ollama](https://img.shields.io/badge/Ollama-Run_Locally-000000?style=for-the-badge)](https://ollama.com)&nbsp;
 [![vLLM](https://img.shields.io/badge/vLLM-Fast_Inference-a78bfa?style=for-the-badge)](https://github.com/vllm-project/vllm)
 
 </div>
@@ -18,92 +18,48 @@ Hands-on workshop by [**MLSA KIIT**](https://mlsakiit.com) — serve **Llama-3.2
 
 ## 🎯 What You'll Build
 
-A fully working **LLM chat application** — pick your deployment path:
+A fully working **LLM chat application** with a polished dark-glass UI, markdown rendering, and dynamic model detection — pick your deployment path:
 
 | | Option | Platform | GPU | Cost | One-Click |
 |---|--------|----------|-----|------|-----------|
-| ☁️ | **[Modal](https://modal.com) + vLLM** | Cloud | A10G | Pay-per-use | `setup_modal.bat` |
-| 🏠 | **[Ollama](https://ollama.com)** | Your machine | CPU / local GPU | Free | `setup_ollama.bat` |
+| ☁️ | **Modal + vLLM** | Cloud | A10G | Pay-per-use | `setup_modal.bat` |
+| 🏠 | **Ollama** | Your machine | CPU / local GPU | Free | `setup_ollama.bat` |
 
 > 💡 Both options share the **same chat interface** — the UI auto-detects which backend it's connected to.
 
 ---
 
-## ☁️ Option A — Modal (Cloud GPU)
+## ⚡ Quick Start
 
-> Deploy to a cloud A10G GPU via **[Modal](https://modal.com)** — no infrastructure to manage.
-
-### Prerequisites
-
-- ✅ Python 3.11+
-- ✅ [Modal account](https://modal.com) (free tier available)
-- ✅ [HuggingFace access](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct) to Llama 3.2 + HF token added as a Modal secret
-
-### 🚀 One-Click Setup
+### ☁️ Cloud (Modal)
 
 ```
 setup_modal.bat
 ```
 
-**Or step by step:**
-
-```bash
-pip install uv
-uv init --no-readme
-uv add modal
-uv run modal setup                    # authenticate (one-time)
-uv run modal deploy modal_model.py    # deploy!
-```
-
-Modal prints two HTTPS URLs — open the **UI** one in your browser and start chatting.
-
----
-
-## 🏠 Option B — Ollama (Local)
-
-> Run entirely on your machine via **[Ollama](https://ollama.com)** — free, private, no cloud needed.
-
-### Prerequisites
-
-- ✅ Python 3.11+
-- ✅ [Ollama](https://ollama.com/download) installed and running
-
-### 🚀 One-Click Setup
+### 🏠 Local (Ollama)
 
 ```
 setup_ollama.bat
 ```
 
-**Or step by step:**
+That's it. The script handles everything — installing tools, dependencies, authentication, deployment, and opens the chat UI.
 
-```bash
-pip install uv
-uv init --no-readme
-uv add fastapi uvicorn httpx
-ollama pull llama3.2:3b
-uv run python ollama_model.py
-```
-
-Open **http://localhost:8000** and start chatting.
+> 📋 For step-by-step manual setup, see [**SETUP.md**](SETUP.md).
 
 ---
 
-## 📡 API Reference
+## 📡 API
 
-Both backends expose the same API:
+Both backends expose the same endpoints:
 
-```
-POST /generate
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/ui` | Chat web interface |
+| `GET` | `/info` | Model name & backend info |
+| `POST` | `/generate` | Run inference |
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `prompt` | `string` | *(required)* | The input prompt |
-| `temperature` | `float` | `0.7` | Creativity (0 = deterministic, 1.5 = wild) |
-| `max_tokens` | `int` | `256` | Max response length |
-
-<details>
-<summary><b>📋 cURL Example</b></summary>
+### POST /generate
 
 ```bash
 curl -X POST http://localhost:8000/generate ^
@@ -116,7 +72,34 @@ curl -X POST http://localhost:8000/generate ^
 { "response": "Gravity is a fundamental force..." }
 ```
 
-</details>
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `prompt` | `string` | *(required)* | The input prompt |
+| `temperature` | `float` | `0.7` | Creativity (0 = deterministic, 1.5 = creative) |
+| `max_tokens` | `int` | `256` | Max response length |
+
+---
+
+## 🧠 Supported Models
+
+### Ungated (no authentication needed)
+
+| Model | ID | Size |
+|-------|----|------|
+| **SmolLM2** *(default)* | `HuggingFaceTB/SmolLM2-1.7B-Instruct` | 1.7B |
+| Phi-3.5 Mini | `microsoft/Phi-3.5-mini-instruct` | 3.8B |
+| TinyLlama | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` | 1.1B |
+| StableLM 2 | `stabilityai/stablelm-2-zephyr-1_6b` | 1.6B |
+
+### Gated (requires HuggingFace token)
+
+| Model | ID | Size |
+|-------|----|------|
+| Llama 3.2 | `meta-llama/Llama-3.2-3B-Instruct` | 3B |
+| Gemma 2 | `google/gemma-2-2b-it` | 2B |
+| Mistral | `mistralai/Mistral-7B-Instruct-v0.3` | 7B |
+
+> 🔒 See [TROUBLESHOOTING.md](TROUBLESHOOTING.md#-gated-huggingface-models) for how to set up HuggingFace authentication.
 
 ---
 
@@ -132,9 +115,11 @@ llm_deployment/
 ├── 🏠 ollama_model.py       # FastAPI server → Ollama
 │
 ├── 🎨 frontend/
-│   └── index.html            # Chat web interface
+│   └── index.html            # Chat interface (markdown, dark UI)
 │
-└── 📖 README.md
+├── 📋 SETUP.md               # Detailed setup instructions
+├── 🛠️ TROUBLESHOOTING.md     # Common issues & fixes
+└── 📖 README.md              # This file
 ```
 
 ---
@@ -142,23 +127,36 @@ llm_deployment/
 ## 🛠️ How It Works
 
 ```
-┌─────────────────────────────────────────────┐
-│               Chat UI (index.html)          │
-│         auto-detects Modal vs Local         │
-└──────────────┬──────────────┬───────────────┘
+┌─────────────────────────────────────────────────┐
+│           Chat UI (frontend/index.html)         │
+│   auto-detects backend · markdown rendering     │
+│   fetches model name from /info endpoint        │
+└──────────────┬──────────────┬───────────────────┘
                │              │
        *.modal.run        localhost:8000
                │              │
      ┌─────────▼──────┐  ┌───▼───────────┐
      │  modal_model.py │  │ ollama_model  │
      │  vLLM · A10G    │  │ FastAPI proxy │
-     └─────────────────┘  └───────┬───────┘
-                                  │
+     │  system prompt  │  └───────┬───────┘
+     └─────────────────┘          │
                           ┌───────▼───────┐
-                          │    Ollama     │
-                          │  llama3.2:3b  │
+                          │    Ollama      │
+                          │  local model   │
                           └───────────────┘
 ```
+
+---
+
+## ❓ Troubleshooting
+
+Having issues? See [**TROUBLESHOOTING.md**](TROUBLESHOOTING.md) for solutions to common problems including:
+
+- Gated HuggingFace models
+- Modal API changes & deprecations
+- Unicode encoding errors on Windows
+- Model giving nonsensical responses
+- Ollama service not running
 
 ---
 

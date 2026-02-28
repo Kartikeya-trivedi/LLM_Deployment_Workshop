@@ -4,6 +4,90 @@ Common issues and fixes for the InferenceX LLM Deployment Workshop.
 
 ---
 
+## 🔒 Gated HuggingFace Models
+
+Some models on HuggingFace are **gated** — you need to request access before downloading them. This includes popular models like **Llama 3**, **Mistral**, and **Gemma**.
+
+### How to tell if a model is gated
+
+If you see this error during deployment:
+
+```
+GatedRepoError: 401 Client Error
+Cannot access gated repo for url https://huggingface.co/...
+Access to model ... is restricted.
+```
+
+The model is gated.
+
+### Option 1: Use an ungated model instead (easiest)
+
+These models work **without any authentication**:
+
+| Model | HuggingFace ID | Size | Origin |
+|-------|----------------|------|--------|
+| SmolLM2 1.7B | `HuggingFaceTB/SmolLM2-1.7B-Instruct` | 1.7B | HuggingFace 🇫🇷 |
+| SmolLM2 360M | `HuggingFaceTB/SmolLM2-360M-Instruct` | 360M | HuggingFace 🇫🇷 |
+| Phi-3.5 Mini | `microsoft/Phi-3.5-mini-instruct` | 3.8B | Microsoft 🇺🇸 |
+| TinyLlama Chat | `TinyLlama/TinyLlama-1.1B-Chat-v1.0` | 1.1B | Community |
+| StableLM 2 | `stabilityai/stablelm-2-zephyr-1_6b` | 1.6B | Stability AI 🇬🇧 |
+| OLMo 1B | `allenai/OLMo-1B` | 1B | AI2 🇺🇸 |
+
+Just change `MODEL_NAME` in `modal_model.py`:
+
+```python
+MODEL_NAME = "HuggingFaceTB/SmolLM2-1.7B-Instruct"
+```
+
+### Option 2: Set up HuggingFace authentication
+
+If you want to use a gated model (e.g., Llama 3.2):
+
+**Step 1 — Request access**
+1. Go to the model page (e.g., [meta-llama/Llama-3.2-3B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct))
+2. Click **"Agree and access"** — approval can take minutes to hours
+
+**Step 2 — Create a HuggingFace token**
+1. Go to [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+2. Click **"New token"** → give it a name → select **Read** access
+3. Copy the token (starts with `hf_`)
+
+**Step 3 — Add the token to Modal**
+```bash
+modal secret create huggingface HF_TOKEN=hf_your_token_here
+```
+
+**Step 4 — Update your code**
+
+Add `secrets` to the `@app.cls()` decorator in `modal_model.py`:
+
+```python
+@app.cls(
+    image=vllm_image,
+    gpu="A10G",
+    scaledown_window=300,
+    secrets=[modal.Secret.from_name("huggingface")],  # ← add this
+)
+```
+
+**Step 5 — Redeploy**
+```bash
+uv run modal deploy modal_model.py
+```
+
+### Common gated models
+
+| Model | Gated? | Access |
+|-------|--------|--------|
+| `meta-llama/Llama-3.2-*` | ✅ Yes | Request on HuggingFace |
+| `mistralai/Mistral-*` | ✅ Yes | Request on HuggingFace |
+| `google/gemma-*` | ✅ Yes | Accept Google's terms |
+| `HuggingFaceTB/SmolLM2-*` | ❌ No | Open access |
+| `microsoft/Phi-3*` | ❌ No | Open access |
+| `TinyLlama/*` | ❌ No | Open access |
+
+---
+
 ## General
 
 ### `'.' is not recognized as an internal or external command`

@@ -7,15 +7,6 @@ echo   MLSA KIIT LLM Deployment Workshop - Ollama Setup
 echo ==================================================
 echo.
 
-:: ---- Check Python ----
-python --version >nul 2>&1
-if !errorlevel! neq 0 (
-    echo [ERROR] Python is not installed or not in PATH.
-    echo         Download from https://www.python.org/downloads/
-    pause
-    exit /b 1
-)
-echo [OK] Python found
 
 :: ---- Check / Install Ollama ----
 ollama --version >nul 2>&1

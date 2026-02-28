@@ -1,10 +1,9 @@
 @echo off
 title LLM Workshop - Modal Setup
-color 0A
 
-echo ============================================
-echo   LLM Deployment Workshop - Modal Setup
-echo ============================================
+echo ==================================================
+echo   MLSA KIIT LLM Deployment Workshop - Modal Setup
+echo ==================================================
 echo.
 
 :: Check Python
@@ -20,7 +19,7 @@ echo [OK] Python found
 :: Install uv
 echo.
 echo [1/4] Installing uv (fast Python package manager)...
-pip install uv
+winget install --id=astral-sh.uv  -e
 if %errorlevel% neq 0 (
     echo [ERROR] Failed to install uv.
     pause

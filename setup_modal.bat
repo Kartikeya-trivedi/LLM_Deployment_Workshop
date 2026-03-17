@@ -9,14 +9,20 @@ echo.
 
 :: Install uv
 echo.
-echo [1/4] Installing uv (fast Python package manager)...
-winget install --id=astral-sh.uv  -e
-if %errorlevel% neq 0 (
-    echo [ERROR] Failed to install uv.
-    pause
-    exit /b 1
+echo [1/4] Checking for uv (fast Python package manager)...
+where uv >nul 2>&1
+if %errorlevel% equ 0 (
+    echo [SKIP] uv is already installed.
+) else (
+    echo       uv not found, installing...
+    winget install --id=astral-sh.uv -e
+    if %errorlevel% neq 0 (
+        echo [ERROR] Failed to install uv.
+        pause
+        exit /b 1
+    )
+    echo [OK] uv installed
 )
-echo [OK] uv installed
 
 :: Init project (creates pyproject.toml + .venv)
 echo.

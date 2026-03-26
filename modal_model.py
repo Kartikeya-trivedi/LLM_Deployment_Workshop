@@ -19,7 +19,7 @@ import pathlib
 
 app = modal.App("llm-model")
 
-MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+MODEL_NAME = "HuggingFaceTB/SmolLM2-1.7B-Instruct"
 FRONTEND_DIR = pathlib.Path(__file__).parent / "frontend"
 
 # Container image with vLLM + frontend baked in

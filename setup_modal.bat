@@ -10,8 +10,7 @@ echo.
 :: Install uv
 echo.
 echo [1/4] Checking for uv (fast Python package manager)...
-where uv >nul 2>&1
-@echo off
+set "UV_JUST_INSTALLED=0"
 
 :: Check if uv is already installed
 uv --version >nul 2>&1
@@ -20,25 +19,40 @@ if %errorlevel% equ 0 (
 ) else (
     echo [INFO] uv not found, attempting installation...
 
-    :: Method 1: Attempt installation via winget
-    echo [1/2] Trying to install uv via winget...
-    winget install --id=astral-sh.uv -e --accept-source-agreements --accept-package-agreements
-    
-    :: Check if winget succeeded
-    if %errorlevel% neq 0 (
-        echo [WARN] winget installation failed or is unavailable.
-        
+    where winget >nul 2>&1
+    if %errorlevel% equ 0 (
+        :: Method 1: Attempt installation via winget
+        echo [1/2] Trying to install uv via winget...
+        winget install --id=astral-sh.uv -e --accept-source-agreements --accept-package-agreements
+
+        if %errorlevel% neq 0 (
+            echo [WARN] winget installation failed.
+
+            :: Method 2: Fallback to Astral's direct PowerShell installer
+            echo [2/2] Falling back to Astral direct installer...
+            powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+            if %errorlevel% neq 0 (
+                echo [ERROR] Failed to install uv using both winget and PowerShell.
+                pause
+                exit /b 1
+            )
+        )
+    ) else (
+        echo [WARN] winget not found. Using Astral direct installer...
+
         :: Method 2: Fallback to Astral's direct PowerShell installer
         echo [2/2] Falling back to Astral direct installer...
         powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-        
-        :: Check if the fallback succeeded
+
         if %errorlevel% neq 0 (
-            echo [ERROR] Failed to install uv using both winget and PowerShell.
+            echo [ERROR] Failed to install uv using PowerShell installer.
             pause
             exit /b 1
         )
     )
+
+    set "UV_JUST_INSTALLED=1"
 
     echo --------------------------------------------------------
     echo [OK] uv installation process completed successfully.
@@ -47,6 +61,8 @@ if %errorlevel% equ 0 (
     echo --------------------------------------------------------
     pause
 )
+
+if "%UV_JUST_INSTALLED%"=="1" exit /b 0
 
 :: Init project (creates pyproject.toml + .venv)
 echo.
@@ -88,7 +104,7 @@ echo [OK] Modal authenticated
 
 :: Deploy and capture output
 echo.
-echo Deploying to Modal...
+echo Deploying to Modal (This will take a long time so please wait)...
 chcp 65001 >nul 2>&1
 set "PYTHONUTF8=1"
 set "PYTHONIOENCODING=utf-8"

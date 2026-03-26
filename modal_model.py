@@ -49,7 +49,7 @@ Rules:
 @app.cls(
     image=vllm_image,
     gpu="A10G",
-    scaledown_window=300,
+    scaledown_window=10000,
 )
 class Model:
     """Wraps vLLM for single-shot text generation."""

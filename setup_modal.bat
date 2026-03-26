@@ -11,17 +11,41 @@ echo.
 echo.
 echo [1/4] Checking for uv (fast Python package manager)...
 where uv >nul 2>&1
+@echo off
+
+:: Check if uv is already installed
+uv --version >nul 2>&1
 if %errorlevel% equ 0 (
     echo [SKIP] uv is already installed.
 ) else (
-    echo       uv not found, installing...
-    winget install --id=astral-sh.uv -e
+    echo [INFO] uv not found, attempting installation...
+
+    :: Method 1: Attempt installation via winget
+    echo [1/2] Trying to install uv via winget...
+    winget install --id=astral-sh.uv -e --accept-source-agreements --accept-package-agreements
+    
+    :: Check if winget succeeded
     if %errorlevel% neq 0 (
-        echo [ERROR] Failed to install uv.
-        pause
-        exit /b 1
+        echo [WARN] winget installation failed or is unavailable.
+        
+        :: Method 2: Fallback to Astral's direct PowerShell installer
+        echo [2/2] Falling back to Astral direct installer...
+        powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+        
+        :: Check if the fallback succeeded
+        if %errorlevel% neq 0 (
+            echo [ERROR] Failed to install uv using both winget and PowerShell.
+            pause
+            exit /b 1
+        )
     )
-    echo [OK] uv installed
+
+    echo --------------------------------------------------------
+    echo [OK] uv installation process completed successfully.
+    echo [REQUIRED] Please RESTART your terminal/command prompt 
+    echo            for the 'uv' command to be recognized.
+    echo --------------------------------------------------------
+    pause
 )
 
 :: Init project (creates pyproject.toml + .venv)
